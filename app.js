@@ -12,14 +12,19 @@ const promotionRouter = require('./routes/promotionRouter');
 const partnerRouter = require('./routes/partnerRouter');
 
 const mongoose = require('mongoose');
+const { runInNewContext } = require('vm');
 // i feel like i am missing something? like i skipped something?
 const url = 'mongodb://localhost:27017/nucampsite';
-const connect = monogoose.connect(url, {
+const connect = mongoose.connect(url, {
   useCreateIndex: true,
   useFindAndModify: false,
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
+connect.then(() => console.log('You are connected to the server correctly'), 
+    err => console.log(err)
+); // error promise
 
 var app = express();
 
@@ -30,7 +35,44 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('12345-67890-09876-54321'));
+
+function auth(req, res, next) {
+  if (!req.signedCookies.user) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      const err = new Error('You are not authenticated');
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+      return next(err);
+    }//if !authHeader close
+    ////////
+    const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":");
+    const user = auth[0];
+    const pass = auth[1];
+    ///////
+    if (user === 'admin' && pass === 'password') {
+        res.cookie("user", "admin", { signed: true });
+        return next();
+    } else {
+        const err = new Error('You are not authenticated');
+        res.setHeader('WWW-Authenticate', 'Basic');
+        err.status = 401;
+        return next(err);
+    }//if/else
+  } else {
+      if (req.signedCookies.user === "admin") {
+        return next();
+      }/*line 64 close*/ else {
+        const err = new Error('You are not authenticated');
+        err.status = 401;
+        return next(err);
+      } //line 66 close
+  }  //line 63 close
+}//func auth close
+
+app.use(auth);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);

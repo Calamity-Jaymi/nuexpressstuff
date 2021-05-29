@@ -69,7 +69,42 @@ campsiteRouter.route('/:campsiteId')
             res.json(response);
         })
         .catch(err => next(err));
-});
+    });
+/////////
+    campsiteRouter.route('/:campsiteId/comments')   
+    .get((req, res, next) => {
+        Campsite.findById(req.params.campsiteId)
+        .then(campsites => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json"); 
+            res.json(campsites);
+        })
+        .catch(err => next(err));
+    })
+    .post((req, res, next) => {
+        Campsite.create(req.body)
+        .then(campsite => {
+            console.log("Campsite Creater", campsite);
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(campsite);
+        })
+        .catch(err => next(err));
+    })
+    .put((req, res) => {
+        res.statusCode = 403;
+        res.end('PUT operation not supported on /campsites');
+    })
+    .delete((req, res, next) => {
+        Campsite.deleteMany()
+        .then(response => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(response);
+        })
+        .catch(err => next(err));
+    });
+
 
 
 module.exports = campsiteRouter;

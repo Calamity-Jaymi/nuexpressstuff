@@ -1,33 +1,33 @@
 const express = require("express");
-const partnerRouter = express.Router();
-const Partners = require('../models/partners');
+const Promotions = require("../models/promotions");
+const promotionRouter = express.Router();
 
-partnerRouter.route('/partners')   
+promotionRouter.route('/promotions')   
     .get((req, res, next) => {
-		Partners.find()
-    .then(partner => {
+		Promotions.find()
+    .then(promotions => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(partner);
+        res.json(promotions);
     })
     .catch(err => next(err));
     }) //
     .post((req, res, next) => {
-        Partners.create(req.body)
-    .then(partner => {
-        console.log('Partner Created ', partner);
+        Promotions.create(req.body)
+    .then(promotion => {
+        console.log('promotion Created ', promotion);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(partner);
+        res.json(promotion);
     })
     .catch(err => next(err));
     }) //
     .put((req, res) => {
         res.statusCode = 403;
-        res.end('PUT operation not supported on /partners');
+        res.end('PUT operation not supported on /promotions');
     }) //
     .delete((req, res, next) => {
-        Partners.deleteMany()
+        Promotions.deleteMany()
     .then(response => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -36,33 +36,33 @@ partnerRouter.route('/partners')
     .catch(err => next(err));
     }); //
 
-partnerRouter.route('/:partnerId')
+promotionRouter.route('/:promotionId')
 	.get((req, res, next) => {
-		Partners.findById(req.params.partnerId)
-		.then(partner => {
+		Promotions.findById(req.params.promotionId)
+		.then(promotion => {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			res.json(partner);
+			res.json(promotion);
 		})
 		.catch(err => next(err));
 	}) //
 	.post((req, res) => {
 		res.statusCode = 403;
-		res.end(`POST operation not supported on /partners/${req.params.partnerId}`);
+		res.end(`POST operation not supported on /promotions/${req.params.promotionId}`);
     }) //
     .put((req, res, next) => {
-		Partners.findByIdAndUpdate(req.params.partnerId, {
+		Promotions.findByIdAndUpdate(req.params.promotionId, {
 			$set: req.body
 		}, { new: true })
-		.then(partner => {
+		.then(promotion => {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
-			res.json(partner);
+			res.json(promotion);
 		})
 		.catch(err => next(err));
 	}) //
 	.delete((req, res, next) => {
-		Partners.findByIdAndDelete(req.params.partnerId)
+		Promotions.findByIdAndDelete(req.params.promotionId)
 		.then(response => {
 			res.statusCode = 200;
 			res.setHeader('Content-Type', 'application/json');
@@ -70,6 +70,6 @@ partnerRouter.route('/:partnerId')
 		})
 		.catch(err => next(err));
 	});
-	
 
-module.exports = partnerRouter;
+
+module.exports = promotionRouter;
